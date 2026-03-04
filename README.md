@@ -20,6 +20,12 @@ npm install
 npm run dev
 ```
 
+
+## 관리자 로그인
+- 백오피스(`/admin/*`)는 로그인 보호됩니다.
+- 기본 계정(초기 설정)
+- 운영 환경에서는 `.env.local`의 `ADMIN_ID`, `ADMIN_PASSWORD`로 반드시 변경하세요.
+
 ## DB 초기화
 Supabase SQL Editor 또는 CLI에서 아래 마이그레이션을 실행합니다.
 
