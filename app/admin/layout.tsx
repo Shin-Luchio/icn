@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Nav } from "@/components/nav";
+import { AdminLogoutButton } from "@/components/admin-logout-button";
 
 const adminLinks = [
   ["/admin/competitions", "대회 관리"],
@@ -22,6 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {label}
               </Link>
             ))}
+            <AdminLogoutButton />
           </div>
         </section>
         {children}
