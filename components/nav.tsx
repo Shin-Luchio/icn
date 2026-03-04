@@ -8,14 +8,19 @@ const links = [
 
 export function Nav() {
   return (
-    <header className="card" style={{ marginBottom: 0, borderRadius: 0 }}>
-      <nav style={{ display: "flex", gap: 16 }}>
-        {links.map((link) => (
-          <Link key={link.href} href={link.href}>
-            {link.label}
-          </Link>
-        ))}
-      </nav>
+    <header className="nav-shell">
+      <div className="nav-inner">
+        <Link href="/" className="brand">
+          ICN CHAMPIONSHIP
+        </Link>
+        <nav className="nav-links">
+          {links.map((link) => (
+            <Link key={link.href} href={link.href} className="nav-link">
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
     </header>
   );
 }

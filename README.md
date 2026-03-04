@@ -24,3 +24,6 @@ npm run dev
 Supabase SQL Editor 또는 CLI에서 아래 마이그레이션을 실행합니다.
 
 - `supabase/migrations/20260801000000_init_mvp.sql`
+
+## 문서
+- [MVP 실행안](./MVP_PLAN.md)
