@@ -10,6 +10,16 @@ export type CompetitionSummary = {
   bank_account: string;
 };
 
+export type Division = {
+  id: string;
+  competition_id: string;
+  name: string;
+};
+
+export type CompetitionWithDivisions = CompetitionSummary & {
+  divisions: Division[];
+};
+
 const fallbackCompetitions: CompetitionSummary[] = [
   {
     id: "fallback-1",
@@ -40,4 +50,33 @@ export async function getPublicCompetitions() {
   }
 
   return { competitions: data as CompetitionSummary[], source: "database" as const };
+}
+
+export async function getCompetitionsWithDivisions(): Promise<{
+  competitions: CompetitionWithDivisions[];
+  source: "database" | "fallback";
+}> {
+  const supabase = createSupabaseServerClient();
+
+  if (!supabase) {
+    return {
+      competitions: fallbackCompetitions.map((c) => ({ ...c, divisions: [] })),
+      source: "fallback"
+    };
+  }
+
+  const { data, error } = await supabase
+    .from("competitions")
+    .select("id,title,description,event_date,location,fee,bank_account,divisions(id,competition_id,name)")
+    .eq("is_public", true)
+    .order("event_date", { ascending: true });
+
+  if (error || !data || data.length === 0) {
+    return {
+      competitions: fallbackCompetitions.map((c) => ({ ...c, divisions: [] })),
+      source: "fallback"
+    };
+  }
+
+  return { competitions: data as CompetitionWithDivisions[], source: "database" };
 }
