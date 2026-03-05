@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(cat:*)",
+      "Bash(node:*)",
+      "Bash(npx supabase:*)",
+      "Bash(netstat:*)",
+      "Bash(tasklist:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(\"C:/Projects/01.GitSolutions/icn/.env.local\":*)"
+    ]
+  }
+}
