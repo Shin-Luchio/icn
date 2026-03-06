@@ -15,14 +15,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
   }
 
-  const { name, phone, email, competition_id, division_id, memo, consent_privacy } = body as {
-    name?: string;
-    phone?: string;
-    email?: string;
-    competition_id?: string;
-    division_id?: string;
-    memo?: string;
-    consent_privacy?: boolean;
+  const {
+    name, phone, email, birth_date, gender, affiliation,
+    competition_id, division_id, memo, consent_privacy
+  } = body as {
+    name?: string; phone?: string; email?: string;
+    birth_date?: string; gender?: string; affiliation?: string;
+    competition_id?: string; division_id?: string;
+    memo?: string; consent_privacy?: boolean;
   };
 
   if (!name || !phone || !competition_id || !consent_privacy) {
@@ -36,10 +36,41 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "서버 설정 오류입니다." }, { status: 500 });
   }
 
+  // 대회 접수 기간 체크
+  const { data: competition, error: compErr } = await supabase
+    .from("competitions")
+    .select("title,fee,bank_account,registration_open_at,registration_close_at,is_public")
+    .eq("id", competition_id)
+    .single();
+
+  if (compErr || !competition) {
+    return NextResponse.json({ error: "존재하지 않는 대회입니다." }, { status: 404 });
+  }
+
+  if (!competition.is_public) {
+    return NextResponse.json({ error: "현재 신청이 불가한 대회입니다." }, { status: 400 });
+  }
+
+  const now = new Date();
+  if (competition.registration_open_at && now < new Date(competition.registration_open_at)) {
+    return NextResponse.json({ error: "아직 접수 기간이 시작되지 않았습니다." }, { status: 400 });
+  }
+  if (competition.registration_close_at && now > new Date(competition.registration_close_at)) {
+    return NextResponse.json({ error: "접수 기간이 마감되었습니다." }, { status: 400 });
+  }
+
   // 1) participants 저장
   const { data: participant, error: pError } = await supabase
     .from("participants")
-    .insert({ name, phone, email: email || null, consent_privacy: true })
+    .insert({
+      name,
+      phone,
+      email: email || null,
+      birth_date: birth_date || null,
+      gender: gender || null,
+      affiliation: affiliation || null,
+      consent_privacy: true
+    })
     .select("id")
     .single();
 
@@ -60,23 +91,25 @@ export async function POST(req: NextRequest) {
       status: "신청",
       memo: memo || null
     })
-    .select("application_no")
+    .select("application_no,id")
     .single();
 
   if (aError || !application) {
     return NextResponse.json({ error: "신청 저장에 실패했습니다." }, { status: 500 });
   }
 
-  // 3) 입금 안내용 대회 정보 조회
-  const { data: competition } = await supabase
-    .from("competitions")
-    .select("title,fee,bank_account")
-    .eq("id", competition_id)
-    .single();
+  // 3) payment 레코드 생성 (입금대기 상태)
+  const depositor_name = `${name}${(phone as string).replace(/\D/g, "").slice(-4)}`;
+  await supabase.from("payments").insert({
+    application_id: application.id,
+    depositor_name,
+    amount: competition.fee,
+    status: "입금대기"
+  });
 
   return NextResponse.json({
     application_no: application.application_no,
     competition,
-    depositor_name: `${name}${(phone as string).replace(/\D/g, "").slice(-4)}`
+    depositor_name
   });
 }

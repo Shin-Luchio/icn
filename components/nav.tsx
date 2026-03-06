@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { AuthButton } from "@/components/auth-button";
 
 const links: { href: Route; label: string }[] = [
-  { href: "/" as Route, label: "홈" },
-  { href: "/competitions" as Route, label: "대회 목록" },
-  { href: "/admin/competitions" as Route, label: "백오피스" }
+  { href: "/competitions" as Route, label: "대회 일정" },
+  { href: "/notices" as Route, label: "공지사항" },
+  { href: "/results" as Route, label: "결과" },
+  { href: "/faq" as Route, label: "FAQ" },
+  { href: "/lookup" as Route, label: "신청 조회" }
 ];
 
 export function Nav() {
@@ -21,7 +22,6 @@ export function Nav() {
               {link.label}
             </Link>
           ))}
-          <AuthButton />
         </nav>
       </div>
     </header>
